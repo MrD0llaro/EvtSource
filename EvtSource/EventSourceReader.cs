@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EvtSource
@@ -21,7 +22,7 @@ namespace EvtSource
 
         private volatile bool _IsDisposed = false;
         public bool IsDisposed => _IsDisposed;
-
+        private CancellationTokenSource cts  ;
         private volatile bool IsReading = false;
         private readonly object StartLock = new object();
 
@@ -38,6 +39,7 @@ namespace EvtSource
         /// <param name="handler">An optional custom handler for HttpClient</param>
         public EventSourceReader(Uri url, HttpMessageHandler handler = null)
         {
+            cts = new CancellationTokenSource();
             Uri = url;
             Hc = new HttpClient(handler ?? new HttpClientHandler());
         }
@@ -80,6 +82,7 @@ namespace EvtSource
         {
             _IsDisposed = true;
             Stream?.Dispose();
+            cts.Cancel();
             Hc.CancelPendingRequests();
             Hc.Dispose();
         }

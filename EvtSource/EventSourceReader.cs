@@ -31,7 +31,7 @@ namespace EvtSource
 
         public event MessageReceivedHandler MessageReceived;
         public event DisconnectEventHandler Disconnected;
-
+        private const string EventStreamMimeType = "text/event-stream";
         /// <summary>
         /// An instance of EventSourceReader
         /// </summary>
@@ -98,13 +98,13 @@ namespace EvtSource
                     {
                         Hc.DefaultRequestHeaders.Remove("Last-Event-Id");
                     }
-                    
+                    Hc.DefaultRequestHeaders.TryAddWithoutValidation("Accept", EventStreamMimeType);
                     Hc.DefaultRequestHeaders.TryAddWithoutValidation("Last-Event-Id", LastEventId);
                 }
                 using (HttpResponseMessage response = await Hc.GetAsync(Uri, HttpCompletionOption.ResponseHeadersRead, cts.Token))
                 {
                     response.EnsureSuccessStatusCode();
-                    if (response.Headers.TryGetValues("content-type", out IEnumerable<string> ctypes) || ctypes?.Contains("text/event-stream") == false)
+                    if (response.Headers.TryGetValues("content-type", out IEnumerable<string> ctypes) || ctypes?.Contains(EventStreamMimeType) == false)
                     {
                         throw new ArgumentException("Specified URI does not return server-sent events");
                     }
@@ -116,7 +116,7 @@ namespace EvtSource
                         string id = string.Empty;
                         var data = new StringBuilder(string.Empty);
 
-                        while (true)
+                        while (!sr.EndOfStream)
                         {
                             string line = await sr.ReadLineAsync();
                             if (line == string.Empty)
@@ -177,6 +177,7 @@ namespace EvtSource
                             }
                         }
                     }
+                    Disconnect(new Exception("stream ended. maybe timeout"));
                 }
             }
             catch (Exception ex)

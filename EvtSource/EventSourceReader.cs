@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace EvtSource
 
         private HttpClient Hc;
         private Stream Stream = null;
-        private readonly Uri Uri;
+        private  Uri Uri;
 
         private volatile bool _IsDisposed = false;
         public bool IsDisposed => _IsDisposed;
@@ -42,6 +42,10 @@ namespace EvtSource
             Hc = new HttpClient(handler ?? new HttpClientHandler());
         }
 
+        public void UpdateUri(Uri url)
+        {
+            Uri = url;
+        }
 
         /// <summary>
         /// Returns instantly and starts listening

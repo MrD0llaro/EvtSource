@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -41,7 +41,12 @@ namespace EvtSource
         {
             cts = new CancellationTokenSource();
             Uri = url;
-            Hc = new HttpClient(handler ?? new HttpClientHandler());
+            Hc = new HttpClient(handler ?? new HttpClientHandler())
+            {
+                Timeout =  new TimeSpan(0, 0, 5)
+            };
+           
+
         }
 
         public void UpdateUri(Uri url)

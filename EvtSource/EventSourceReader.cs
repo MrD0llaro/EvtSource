@@ -110,7 +110,7 @@ namespace EvtSource
                     }
 
                     Stream = await response.Content.ReadAsStreamAsync();
-                    using (var sr = new StreamReader(Stream))
+                    using (var sr = new StreamReader(Stream, Encoding.UTF8, false, 16348, true))
                     {
                         string evt = DefaultEventType;
                         string id = string.Empty;
